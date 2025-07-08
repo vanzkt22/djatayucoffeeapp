@@ -5,6 +5,8 @@ import 'purchase_history_page.dart';
 import 'edit_product_page.dart'; 
 
 class AdminHomePage extends StatefulWidget {
+  const AdminHomePage({super.key});
+
   @override
   State<AdminHomePage> createState() => _AdminHomePageState();
 }
@@ -13,7 +15,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
   final supabase = Supabase.instance.client;
   List<dynamic> products = [];
   String searchQuery = '';
-  String? filterCategory;
 
   @override
   void initState() {
@@ -48,17 +49,20 @@ class _AdminHomePageState extends State<AdminHomePage> {
   @override
   Widget build(BuildContext context) {
     final filteredProducts = products.where((p) {
-      final name = p['name']?.toLowerCase() ?? '';
-      final matchesSearch = name.contains(searchQuery.toLowerCase());
-      final matchesFilter = filterCategory == null || p['category'] == filterCategory;
-      return matchesSearch && matchesFilter;
+      final name = (p['name'] ?? '').toLowerCase();
+      return name.contains(searchQuery.toLowerCase());
     }).toList();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          Image.asset('assets/bg.jpeg', fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+          Image.asset(
+            'assets/bg.jpeg',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
           SafeArea(
             child: Column(
               children: [
@@ -68,10 +72,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     children: [
                       Expanded(
                         child: TextField(
-                          onChanged: (value) => setState(() => searchQuery = value),
+                          onChanged: (value) =>
+                              setState(() => searchQuery = value),
                           decoration: InputDecoration(
                             hintText: 'Cari Kopi ...',
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 16),
                             filled: true,
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
@@ -89,34 +95,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const AddProductPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const AddProductPage()),
                           ).then((_) => fetchProducts());
                         },
-                        child: const Text('+ Produk'),
+                        child: const Text('Tambah Produk'),
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      const Text('Filter kategori: '),
-                      DropdownButton<String>(
-                        value: filterCategory,
-                        hint: const Text('Semua'),
-                        items: ['arabica', 'robusta', 'mix']
-                            .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => filterCategory = value);
-                        },
-                      ),
-                      if (filterCategory != null)
-                        IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () => setState(() => filterCategory = null),
-                        )
                     ],
                   ),
                 ),
@@ -129,9 +113,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           itemBuilder: (context, index) {
                             final p = filteredProducts[index];
                             return Card(
-                              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               color: Colors.white.withOpacity(0.8),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: Row(
@@ -144,20 +130,30 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                         width: 80,
                                         height: 80,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported, size: 80),
+                                        errorBuilder: (_, __, ___) => const Icon(
+                                            Icons.image_not_supported,
+                                            size: 80),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(p['name'] ?? '',
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                                          Text(
+                                            p['name'] ?? '',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
                                           Text('Rp${p['price']}'),
                                           const SizedBox(height: 4),
-                                          Text(p['description'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
+                                          Text(
+                                            p['description'] ?? '',
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                           const SizedBox(height: 8),
                                           Row(
                                             children: [
@@ -166,26 +162,36 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                      builder: (_) => EditProductPage(product: p),
+                                                      builder: (_) =>
+                                                          EditProductPage(
+                                                              product: p),
                                                     ),
-                                                  ).then((_) => fetchProducts());
+                                                  ).then((_) =>
+                                                      fetchProducts());
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.blue,
                                                   foregroundColor: Colors.white,
                                                   shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(8)),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
                                                 ),
                                                 child: const Text('Edit'),
                                               ),
                                               const SizedBox(width: 8),
                                               ElevatedButton(
-                                                onPressed: () => deleteProduct(p['id']),
+                                                onPressed: () =>
+                                                    deleteProduct(p['id']),
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.red,
                                                   foregroundColor: Colors.white,
                                                   shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(8)),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
                                                 ),
                                                 child: const Text('Hapus'),
                                               ),
@@ -214,13 +220,16 @@ class _AdminHomePageState extends State<AdminHomePage> {
           if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const PurchaseHistoryPage()),
+              MaterialPageRoute(
+                  builder: (_) => const PurchaseHistoryPage()),
             );
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.coffee), label: 'Produk'),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Riwayat'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.coffee), label: 'Produk'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long), label: 'Riwayat'),
         ],
       ),
     );
@@ -232,6 +241,6 @@ class HomeAdminPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminHomePage();
+    return const AdminHomePage();
   }
 }
